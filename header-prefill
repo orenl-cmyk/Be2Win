@@ -10,22 +10,17 @@
     const community = getParam("community");
     if (!community) return;
 
-    const headers = document.querySelectorAll('span[style*="32pt"]');
+    const headers = document.querySelectorAll('span');
 
     headers.forEach(el => {
-      if (el.innerText.includes("עבור")) {
+      if (el.innerText.trim().startsWith("עבור")) {
         el.innerText = `עבור - ${community}`;
       }
     });
   }
 
-  // נריץ שוב ושוב עד שאוריגמי סיים לרנדר
   const interval = setInterval(() => {
     replaceHeader();
-
-    if (document.body.innerText.includes(getParam("community"))) {
-      clearInterval(interval);
-    }
   }, 300);
 
 })();
