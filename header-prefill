@@ -1,26 +1,41 @@
 (function () {
 
-  function getParam(name) {
-    const url = new URL(window.location.href);
-    return url.searchParams.get(name);
+  function getParamFixed(name) {
+    const qs = window.location.search || "";
+    const raw = new URLSearchParams(qs).get(name);
+    if (!raw) return null;
+
+    // Origami/Links לפעמים שמים + במקום רווח
+    return raw.replace(/\+/g, " ").trim();
   }
 
-  function replaceHeader() {
+  function setCommunityHeader() {
+    const community = getParamFixed("community");
+    if (!community) return false;
 
-    const community = getParam("community");
-    if (!community) return;
+    // נחפש כל אלמנט שמכיל "עבור" ונסדר אותו
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    let node;
 
-    const headers = document.querySelectorAll('span');
-
-    headers.forEach(el => {
-      if (el.innerText.trim().startsWith("עבור")) {
-        el.innerText = `עבור - ${community}`;
+    while ((node = walker.nextNode())) {
+      const t = (node.nodeValue || "").replace(/\u00A0/g, " ").trim(); // nbsp -> space
+      if (t.startsWith("עבור")) {
+        node.nodeValue = `עבור - ${community}`;
+        return true;
       }
-    });
+    }
+
+    return false;
   }
 
-  const interval = setInterval(() => {
-    replaceHeader();
-  }, 300);
+  // ניסיון ראשון
+  if (setCommunityHeader()) return;
+
+  // נעקוב אחרי רינדורים/שינויים של אוריגמי
+  const obs = new MutationObserver(() => {
+    if (setCommunityHeader()) obs.disconnect();
+  });
+
+  obs.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 
 })();
