@@ -13,7 +13,7 @@
     const headers = document.querySelectorAll('span[style*="32pt"]');
 
     headers.forEach(el => {
-      if (el.innerText.includes("עבור -")) {
+      if (el.innerText.includes("עבור")) {
         el.innerText = `עבור - ${community}`;
       }
     });
